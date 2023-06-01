@@ -53,7 +53,7 @@ public type ExternalPerson record {
 
 final mssql:Client msSqlClient = check new (host = dbHost, user = dbUser, password = dbPass, database = dbName, port = dbPort);
 
-service / on new http:Listener(9091) {
+service /sinclair_ssp on new http:Listener(9091) {
     resource function post persons(@http:Payload Person person) returns http:Ok|http:InternalServerError|error? {
 
         if person.id.length() == 0 {
