@@ -61,7 +61,7 @@ service /sinclair_ssp on new http:Listener(9091) {
         }
 
         sql:ParameterizedQuery insertQuery = `
-        INSERT INTO dbo.persons (id, first_name, last_name, 
+        INSERT INTO person (id, first_name, last_name, 
         primary_email_address, secondary_email_address, username,
          home_phone, cell_phone, work_phone, address_line_1,
         address_line_2, city, state, zip_code, school_id, birth_date) VALUES ( +
