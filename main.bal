@@ -86,7 +86,7 @@ service /sinclair_ssp on new http:Listener(9091) {
     resource function get persons(string? schoolId) returns http:Ok|http:NotFound|http:InternalServerError|error?|Person[] {
 
         sql:ParameterizedQuery selectQuery = ``;
-        if schoolId != () && schoolId.length() == 0 {
+        if schoolId == () || schoolId.trim().length() == 0 {
             selectQuery = `SELECT * FROM person`;
         }
         else {
@@ -198,6 +198,5 @@ service /sinclair_ssp on new http:Listener(9091) {
         //  resource function put externalPersons/[string personGuid](@http:Payload ExternalPerson externalPersons) returns http:Ok|http:InternalServerError|error? {
         //  }
     }
-
 
 }
