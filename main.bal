@@ -83,9 +83,15 @@ service /sinclair_ssp on new http:Listener(9091) {
 
     }
 
-    resource function get persons(string schooldId) returns http:Ok|http:NotFound|http:InternalServerError|error?|Person[] {
+    resource function get persons(string? schooldId) returns http:Ok|http:NotFound|http:InternalServerError|error?|Person[] {
 
-        sql:ParameterizedQuery selectQuery = `SELECT * FROM persons WHERE school_id = ${schooldId}`;
+        sql:ParameterizedQuery selectQuery = ``;
+        if schooldId != () && schooldId.length() == 0 {
+            selectQuery = `SELECT * FROM person`;
+        }
+        else {
+            selectQuery = `SELECT * FROM person WHERE school_id = ${schooldId}`;
+        }
         stream<Person, sql:Error?> resultStream = msSqlClient->query(selectQuery);
 
         Person[]|error persons = from Person person in resultStream
@@ -107,7 +113,7 @@ service /sinclair_ssp on new http:Listener(9091) {
     }
 
     resource function get persons/[string personGuid]() returns http:Ok|http:InternalServerError|http:NotFound|error?|Person {
-        sql:ParameterizedQuery selectQuery = `SELECT * FROM persons WHERE id = ${personGuid}`;
+        sql:ParameterizedQuery selectQuery = `SELECT * FROM person WHERE id = ${personGuid}`;
         stream<Person, sql:Error?> resultStream = msSqlClient->query(selectQuery);
         Person[]|error persons = from Person person in resultStream
             select person;
@@ -132,7 +138,7 @@ service /sinclair_ssp on new http:Listener(9091) {
     }
 
     resource function put persons/[string personGuid](@http:Payload Person person) returns http:Ok|http:NotFound|http:InternalServerError|error? {
-        sql:ParameterizedQuery selectQuery = `SELECT * FROM persons WHERE id = ${personGuid}`;
+        sql:ParameterizedQuery selectQuery = `SELECT * FROM person WHERE id = ${personGuid}`;
         stream<Person, sql:Error?> resultStream = msSqlClient->query(selectQuery);
         Person[]|error existingPersons = from Person _person in resultStream
             select _person;
@@ -152,7 +158,7 @@ service /sinclair_ssp on new http:Listener(9091) {
         }
         else {
             Person existingPerson = existingPersons[0];
-            sql:ParameterizedQuery updateQuery = `UPDATE dbo.persons SET 
+            sql:ParameterizedQuery updateQuery = `UPDATE person SET 
             first_name = ${person.first_name.toString().length() == 0 ? existingPerson.first_name : person.first_name.toString()}, 
             last_name = ${person.last_name.toString().length() == 0 ? existingPerson.last_name : person.last_name.toString()},
             primary_email_address = ${person.primary_email_address.toString().length() == 0 ? existingPerson.primary_email_address : person.primary_email_address.toString()},
