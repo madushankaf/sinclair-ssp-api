@@ -83,14 +83,14 @@ service /sinclair_ssp on new http:Listener(9091) {
 
     }
 
-    resource function get persons(string? schooldId) returns http:Ok|http:NotFound|http:InternalServerError|error?|Person[] {
+    resource function get persons(string? schoolId) returns http:Ok|http:NotFound|http:InternalServerError|error?|Person[] {
 
         sql:ParameterizedQuery selectQuery = ``;
-        if schooldId != () && schooldId.length() == 0 {
+        if schoolId != () && schoolId.length() == 0 {
             selectQuery = `SELECT * FROM person`;
         }
         else {
-            selectQuery = `SELECT * FROM person WHERE school_id = ${schooldId}`;
+            selectQuery = `SELECT * FROM person WHERE school_id = ${schoolId}`;
         }
         stream<Person, sql:Error?> resultStream = msSqlClient->query(selectQuery);
 
@@ -98,11 +98,11 @@ service /sinclair_ssp on new http:Listener(9091) {
             select person;
 
         if persons is sql:Error {
-            log:printError("Error occurred while retrieving data from the database for schoolId", schooldId = schooldId, err = persons.message());
+            log:printError("Error occurred while retrieving data from the database for schoolId", schooldId = schoolId, err = persons.message());
             return http:INTERNAL_SERVER_ERROR;
         }
         else if persons is error {
-            return error("nternal error occurred while retrieving data from the database for schoolId", schooldId = schooldId, err = persons.message());
+            return error("nternal error occurred while retrieving data from the database for schoolId", schoolId = schoolId, err = persons.message());
         }
         else if persons.length() == 0 {
             return http:NOT_FOUND;
